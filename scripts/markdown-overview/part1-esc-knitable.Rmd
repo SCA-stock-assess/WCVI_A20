@@ -19,20 +19,10 @@ params:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=F, warning=F, message=F)
 
-# Load libraries ------------------------
-#library(here)
+# Load libraries & helpers ------------------------
 library(tidyverse)
-#library(readxl)
-# library(kableExtra)
-# library(bookdown)  
-# library(scales)       # for label_percent()
-# library(ggpubr)       # for ggarrange()
-# library(saaWeb)
-
-
-# Helpers/functions ------------------------
 "%notin%" <- Negate("%in%")
-analysis_year <- 2024
+analysis_year <- 2025
 
 
 
@@ -44,8 +34,8 @@ analysis_year <- 2024
 
 # Option 2. Load dumped data ------------------------
 a20_nuseds_escapement <- readxl::read_excel(path=here::here("outputs", 
-                                                      list.files(path=here::here("outputs"), 
-                                                                 pattern="R_OUT - Area20WCVI_Escapement_allSpp-allYrs*")),
+                                                            list.files(path=here::here("outputs"), 
+                                                                       pattern="R_OUT - Area20WCVI_Escapement_allSpp-allYrs*")),
                                             sheet="Sheet1")
 
 
@@ -156,7 +146,7 @@ sj.fence$stat_week <- factor(sj.fence$stat_week,
 
 # ====================== AGE data ======================   (all species, all years - not linked to individual fish)
 # Option 1: Re-dump source code for updates ------------------
- #source(here::here("scripts", "functions", "pullSanJuanAgeData.R"))
+ # source(here::here("scripts", "functions", "pullSanJuanAgeData.R"))
   # saves as SJ_allAgesMaster
 
 
@@ -288,6 +278,41 @@ Status snapshot:
 -   Recent (12yr) dominant age structure: `r sj_12Y_avgs %>% filter(Species=="Chinook") %>% arrange(desc(avg_propn)) %>% slice(1) %>% pull(res_age[1])` year olds (`r sj_12Y_avgs %>% filter(Species=="Chinook") %>% arrange(desc(avg_propn)) %>% slice(1) %>% pull(avg_propn[1])*100` +/- `r sj_12Y_avgs %>% filter(Species=="Chinook") %>% arrange(desc(avg_propn)) %>% slice(1) %>% pull(sd_propn[1])*100`%) followed by `r sj_12Y_avgs %>% filter(Species=="Chinook") %>% arrange(desc(avg_propn)) %>% slice(2) %>% pull(res_age[1])` year olds (`r sj_12Y_avgs %>% filter(Species=="Chinook") %>% arrange(desc(avg_propn)) %>% slice(2) %>% pull(avg_propn[1])*100` +/- `r sj_12Y_avgs %>% filter(Species=="Chinook") %>% arrange(desc(avg_propn)) %>% slice(2) %>% pull(sd_propn[1])*100`%)
 
 -   Hatchery vs wild: uncertain due to historical marking/tagging process. Mostly unclipped with no thermal mark (but historical TM process highly unreliable)
+
+```{r}
+esc_ts <- sj.esc %>% 
+  filter(est_type %in% c("Natural Adult Spawners", "Adult Broodstock Removals"), 
+         SJ_watershed_group=="core SJ watershed") %>%
+  group_by(year, Species) %>% 
+  summarize(estimate = sum(estimate, na.rm=T)) 
+
+esc_avgsLT <- esc_ts %>%
+  filter(year >= 1995) %>% 
+  group_by(Species) %>% 
+  summarize(mean_esc_full = mean(estimate)) %>%
+  print()
+
+esc_avgs10 <- esc_ts %>%
+  filter(year %in% c(analysis_year-1:(analysis_year-1-10))) %>% 
+  group_by(Species) %>% 
+  summarize(mean_esc_full = mean(estimate)) %>%
+  print()
+
+esc_quart <- esc_ts %>%
+  filter(year >= 1995) %>%
+  group_by(Species) %>%
+  summarize(
+    Q0 = quantile(estimate, probs = 0),
+    Q1 = quantile(estimate, probs = 0.25),
+    Median = quantile(estimate, probs = 0.5),
+    Q3 = quantile(estimate, probs = 0.75),
+    Q4 = quantile(estimate, probs = 1)
+  ) %>%
+  print()
+
+esc_quart_CN <- quantile(esc_ts[esc_ts$Species=="Chinook" & esc_ts$year >= 1995,]$estimate)
+```
+
 
 <br>
 
