@@ -247,20 +247,7 @@ sj.esc.goal <- read.csv(here::here("data", "escapement", "wcviCK-BootstrappedRPs
 
 <br>
 
-Outstanding systems (no SILs):
-
-- Systems already in the database and may** be able to create estimates under “expert opinion”, but still need location information:
-  + Fairy 
-  + Mosquito 
-  + Falls
-  + San Juan channels: Baird Creek, Browns Creek, Kuzman Creek, Murton Creek, Rich’s Creek, Waterline Creek
-  + --> **water quality/weather information is mandatory for entry – can this be filled in anecdotally??**
-
-- Cannot enter in database at all without additional location information:
-  + Chims Creek
-  + Dr. Dave Channel
-  
-- Nov 24 Lens – no SIL? Only have Nov 21
+Mini tribs were surveyed this year and mostly entered under San Juan mainstem as reaches. Three are not in the database and need to be added next year: Dr Dave Creek, Chim's Channel, and Stanley Creek. These are all part of the San Juan mainstem estimate, but are not of concern because 1) all with the exception of Kuzman are d/s of the standard snorkel area, and 2) hardly any fish were seen in 2025 in these creeks. 
 
 <br>
 
@@ -871,11 +858,11 @@ There were a total of 3,795 and 3,923 observed coho in the San Juan River on Oct
 
 The timing of these mainstem surveys alone would suggest most coho left the mainstem survey area and either went above the surveyed area, or into tributaries. Historical tagging indicates approximately 66% of the run tends to go into Harris, although this information needs to be renewed with modern methods (e.g., PIT tags).  
 
-The Harris Creek survey on Oct 9 noted 1,160 adults. Given that there was a very short gap between the two San Juan mainstem surveys and the Harris Creek survey (fig 2), and a slight increase in the mainstem count on the latter survey, we can assume that the total coho population entering the watershed was likely 1,160 + 3,923 = 5,082 adult (unexpanded) coho; the total number of live expanded for OE would be 1,289 + 4,614 = 5,903. Because the Lens Creek survey was so much later, and fish were spawning by then, we cannot reliably say this would be in addition to these numbers – it is more likely some of these ~6k fish moved into Lens after being counted. 
+The Harris Creek survey on Oct 9 noted 1,160 adults. Given that there was a very short gap between the two San Juan mainstem surveys and the Harris Creek survey (fig 2), and a slight increase in the mainstem count on the latter survey, we can assume that the total coho population entering the watershed was likely 1,160 + 3,923 (+5 mini tribs) = 5,087 adult (unexpanded) coho; the total number of live expanded for OE would be 1,289 + 4,614 (+5 mini tribs) = 5,908. Because the Lens Creek survey was so much later, and fish were spawning by then, we cannot reliably say this would be in addition to these numbers – it is more likely some of these ~6k fish moved into Lens after being counted. 
 
 As over half of the Lens Creek component was spawning on the Nov 21 survey, and the survey timing is good for Coho, we will assume that survey represents the Lens Creek population. This leaves 5,905 expanded adults to be portioned out between Harris Creek and the San Juan River mainstem. 
 
-**In absence of any other information, we will assume 66% of the total number went into Harris Creek, or 3,896 live adults + 1 dead = 3,897. This leaves 2,007 live coho + 1 dead = 2,008 coho spawning in the San Juan mainstem. Likewise for jacks this would equate to 58 total (expanded) jacks, 39 in Harris and 19 in the SJ mainstem.**
+**In absence of any other information, we will assume 66% of the total number went into Harris Creek, or 5908*0.66 = 3,899 live adults + 1 dead = 3,900. Subtracting 5908-3900 = 2,008 live coho + 1 dead = 2,009 coho spawning in the San Juan mainstem. Likewise for jacks this would equate to 58 total (expanded) jacks, 39 in Harris and 19 in the SJ mainstem.**
 
 
 
@@ -910,16 +897,17 @@ Figure: Raw swim counts (blue) from this year compared to historical raw swim co
 ```{r}
 ggplot()  +
   geom_bar(data=a20_nuseds_escapement %>% 
-             filter(waterbody_name=="SAN JUAN RIVER", `Species Qualified`=="CO", 
+             filter(grepl("SAN JUAN|harris|lens",waterbody_name, ignore.case=T), `Species Qualified`=="CO", 
                     est_type%in%c("Unspecified Return", "Natural Adult Spawners")) %>%
              group_by(year, est_type) %>%
              summarize(count = sum(estimate, na.rm=T)), 
            aes(x=year, y=count, colour=est_type, fill=est_type), stat="identity", alpha=0.8) +
-   geom_bar(data=escEstSpp %>% 
-              filter(ShortSpecies=="CO", AREA!="20", grepl("San Juan", SystemName)) %>% 
-              select(Year, SystemName, AdultNaturalReco) %>% 
-              summarize(n=sum(AdultNaturalReco)), 
-            aes(x=analysis_year, y=n), stat="identity", colour="red", fill="dodger blue", alpha=0.4) +   
+   # geom_bar(data=escEstSpp %>% 
+   #            filter(ShortSpecies=="CO", grepl("San Juan", SystemName)) %>% 
+   #            select(Year, SystemName, AdultNaturalReco) %>% 
+   #            summarize(n=sum(AdultNaturalReco)), 
+   #          aes(x=analysis_year, y=n), stat="identity", colour="red", fill="dodger blue", alpha=0.4) +   
+     geom_bar(aes(x=2025, y=5903), stat="identity", colour="red", fill="dodger blue", alpha=0.4) + 
   scale_fill_manual(values=c("Unspecified Return" = "gray80",
                              "Natural Adult Spawners" = "dodger blue")) +
   scale_colour_manual(values=c("Unspecified Return" = "gray80",
@@ -1203,7 +1191,7 @@ escEstSpp %>%
 
 ### Estimate decision:   
 
-Used expanded PL+D. No chum in tribs this year to worry about. 
+Used expanded PL+D. Added in 4 dead chum in Kuzman as not likely these would have been double-counted (43 expanded live + 4 dead = 47 total).
 
 <br>
 
